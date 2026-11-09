@@ -2,8 +2,12 @@ package com.agguidigital.phishingchecker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
+import com.agguidigital.phishingchecker.virustotal.VirusTotalProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties(VirusTotalProperties.class)
 public class PhishingCheckerApplication {
 
 	public static void main(String[] args) {
