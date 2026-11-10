@@ -4,6 +4,8 @@
 
 The Spring Boot application is in `backend/`. It listens on port 8081. `GET /api/health` returns `{"status":"ok"}`.
 
+`POST /api/email/extract` with `{"text":"..."}` extracts explicit `http` and `https` URLs from pasted plain text. Text must be nonblank and at most 50,000 characters. The response lists up to 20 unique URLs in first-seen order, plus warnings that pasted text omits full email headers and can hide an HTML link’s original destination. When more than 20 unique URLs are present, `truncated` is true and only the first 20 are returned. A trailing `?`, `!`, `;`, or `:` stays on the URL, because plain text does not show whether it belongs to the path or query. A trailing period or comma, and an unmatched closing bracket, are still removed and can shorten a URL that really ends with that character. This endpoint does not open the URLs, resolve DNS, render HTML, or call VirusTotal.
+
 Start it from PowerShell:
 
 ```powershell
