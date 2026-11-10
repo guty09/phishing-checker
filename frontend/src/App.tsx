@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { checkUrl, validateUrl, type AnalysisCounts, type CheckResult, type LookupStatus } from './checkUrl'
+import { EmailPaste } from './EmailPaste'
 import './App.css'
 
 const STATUS_EXPLANATION: Record<LookupStatus, string> = {
@@ -44,7 +45,9 @@ function App() {
 
   return (
     <main className="page">
-      <p className="prototype">Prototype. This page checks URL reputation only. Email analysis is not implemented yet.</p>
+      <p className="prototype">
+        Prototype. The URL section checks reputation only. Pasted email text is used to extract links, not to decide whether the email is phishing.
+      </p>
       <h1>Phishing checker</h1>
       <p className="lead">
         Look up an existing VirusTotal report. A result of <strong>found</strong> means a report was retrieved, not that the URL is safe.
@@ -77,6 +80,7 @@ function App() {
         {requestError ? <p className="message">{requestError}</p> : null}
         {result ? <ResultView result={result} /> : null}
       </section>
+      <EmailPaste />
     </main>
   )
 }
