@@ -1,7 +1,23 @@
 import { useRef, useState, type FormEvent } from 'react'
+import type { CheckResult } from './checkUrl'
 import { extractEmailLinks, MAX_EMAIL_TEXT_LENGTH, validateEmailText, type EmailExtractResult } from './extractEmail'
+import { ResultView } from './reputationResult'
 
-export function EmailPaste() {
+type ExtractedReputationCheck = {
+  url: string
+  loading: boolean
+  requestError: string | null
+  result: CheckResult | null
+}
+
+type EmailPasteProps = {
+  reputationBusy: boolean
+  extractedCheck: ExtractedReputationCheck | null
+  onEmailTextChange: () => void
+  onCheckReputation: (url: string) => void
+}
+
+export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, onCheckReputation }: EmailPasteProps) {
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [inputError, setInputError] = useState<string | null>(null)
@@ -16,6 +32,7 @@ export function EmailPaste() {
     setInputError(null)
     setRequestError(null)
     setResult(null)
+    onEmailTextChange()
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -54,7 +71,7 @@ export function EmailPaste() {
     <section className="email-paste">
       <h2>Paste email text</h2>
       <p id="email-note">
-        This extracts links only. It does not yet assess whether the email is phishing, and it does not check the links with VirusTotal.
+        This extracts links only. It does not yet assess whether the email is phishing.
       </p>
       <form onSubmit={onSubmit}>
         <label htmlFor="email-text">Email text</label>
@@ -80,31 +97,64 @@ export function EmailPaste() {
         {loading ? <p>Extracting links…</p> : null}
         {inputError ? <p className="message">{inputError}</p> : null}
         {requestError ? <p className="message">{requestError}</p> : null}
-        {result ? <ExtractResultView result={result} /> : null}
+        {result ? (
+          <ExtractResultView
+            result={result}
+            reputationBusy={reputationBusy}
+            extractedCheck={extractedCheck}
+            onCheckReputation={onCheckReputation}
+          />
+        ) : null}
       </div>
     </section>
   )
 }
 
-function ExtractResultView({ result }: { result: EmailExtractResult }) {
+function ExtractResultView({
+  result,
+  reputationBusy,
+  extractedCheck,
+  onCheckReputation,
+}: {
+  result: EmailExtractResult
+  reputationBusy: boolean
+  extractedCheck: ExtractedReputationCheck | null
+  onCheckReputation: (url: string) => void
+}) {
   return (
     <div>
       <p>{result.truncated ? 'Truncation: only the first 20 unique URLs are shown.' : 'Truncation: no.'}</p>
       {result.urls.length === 0 ? <p>No explicit http or https links were found.</p> : null}
       {result.urls.length > 0 ? (
-        <ul className="url-list">
-          {result.urls.map((url) => (
-            <li key={url}>
-              <span className="plain-url">{url}</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <p>Check reputation sends the selected URL to VirusTotal through our backend. Nothing is checked until you click its button.</p>
+          <ul className="url-list">
+            {result.urls.map((url) => (
+              <li key={url}>
+                <span className="plain-url">{url}</span>
+                <button type="button" disabled={reputationBusy} onClick={() => onCheckReputation(url)}>
+                  {extractedCheck?.loading && extractedCheck.url === url ? 'Checking…' : 'Check reputation'}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : null}
       <ul className="warning-list">
         {result.warnings.map((warning) => (
           <li key={warning}>{warning}</li>
         ))}
       </ul>
+      {extractedCheck ? (
+        <div className="extracted-check">
+          <p>
+            Reputation result for extracted URL: <span className="plain-url">{extractedCheck.url}</span>
+          </p>
+          {extractedCheck.loading ? <p>Checking the URL…</p> : null}
+          {extractedCheck.requestError ? <p className="message">{extractedCheck.requestError}</p> : null}
+          {extractedCheck.result ? <ResultView result={extractedCheck.result} /> : null}
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -87,6 +87,22 @@ button:disabled {
   margin-top: 0.75rem;
 }
 
+.url-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0.45rem 0;
+}
+
+.url-list button {
+  margin-top: 0;
+}
+
+.extracted-check {
+  margin-top: 1rem;
+}
+
 .plain-url {
   overflow-wrap: anywhere;
   white-space: pre-wrap;
