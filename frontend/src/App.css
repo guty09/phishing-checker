@@ -1,0 +1,98 @@
+.page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.prototype {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #8a6a12;
+  background: #fff6d8;
+  color: #3f2e04;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.lead {
+  margin: 0 0 1.5rem;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+label {
+  font-weight: 650;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #8b93a7;
+  border-radius: 0.4rem;
+  font: inherit;
+}
+
+button {
+  justify-self: start;
+  margin-top: 0.25rem;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: #163a66;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.result {
+  margin-top: 1.5rem;
+}
+
+.plain-url {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border: 1px solid #9a3b3b;
+  background: #fdecec;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 0.4rem 1rem;
+  margin: 1rem 0 0;
+}
+
+dt {
+  font-weight: 650;
+}
+
+dd {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  dl {
+    grid-template-columns: 1fr;
+  }
+}
