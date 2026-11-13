@@ -1,7 +1,14 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { analyzeEmail, validateEmailTextForAnalysis, type EmailAnalysis, type EmailAssessment } from './analyzeEmail'
 import type { CheckResult } from './checkUrl'
 import { extractEmailLinks, MAX_EMAIL_TEXT_LENGTH, validateEmailText, type EmailExtractResult } from './extractEmail'
 import { ResultView } from './reputationResult'
+
+const ASSESSMENT_LABEL: Record<EmailAssessment, string> = {
+  suspicious: 'Suspicious warning signs',
+  no_obvious_warning_signs: 'No obvious warning signs',
+  inconclusive: 'Inconclusive',
+}
 
 type ExtractedReputationCheck = {
   url: string
@@ -23,15 +30,25 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
   const [inputError, setInputError] = useState<string | null>(null)
   const [requestError, setRequestError] = useState<string | null>(null)
   const [result, setResult] = useState<EmailExtractResult | null>(null)
+  const [analysisLoading, setAnalysisLoading] = useState(false)
+  const [analysisInputError, setAnalysisInputError] = useState<string | null>(null)
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
+  const [analysis, setAnalysis] = useState<EmailAnalysis | null>(null)
   const requestGeneration = useRef(0)
+  const analysisGeneration = useRef(0)
 
   function onTextChange(value: string) {
     requestGeneration.current += 1
+    analysisGeneration.current += 1
     setText(value)
     setLoading(false)
     setInputError(null)
     setRequestError(null)
     setResult(null)
+    setAnalysisLoading(false)
+    setAnalysisInputError(null)
+    setAnalysisError(null)
+    setAnalysis(null)
     onEmailTextChange()
   }
 
@@ -67,11 +84,42 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
     }
   }
 
+  async function onAnalyze() {
+    const generation = analysisGeneration.current + 1
+    analysisGeneration.current = generation
+    setAnalysis(null)
+    setAnalysisError(null)
+    const validationError = validateEmailTextForAnalysis(text)
+    if (validationError) {
+      setAnalysisInputError(validationError)
+      setAnalysisLoading(false)
+      return
+    }
+    setAnalysisInputError(null)
+    setAnalysisLoading(true)
+    try {
+      const next = await analyzeEmail(text)
+      if (analysisGeneration.current !== generation) {
+        return
+      }
+      setAnalysis(next)
+    } catch (error) {
+      if (analysisGeneration.current !== generation) {
+        return
+      }
+      setAnalysisError(error instanceof Error ? error.message : 'The checker could not analyze the message.')
+    } finally {
+      if (analysisGeneration.current === generation) {
+        setAnalysisLoading(false)
+      }
+    }
+  }
+
   return (
     <section className="email-paste">
       <h2>Paste email text</h2>
       <p id="email-note">
-        This extracts links only. It does not yet assess whether the email is phishing.
+        Extract links lists explicit http and https URLs. Analyze message applies text rules only. Message analysis does not confirm phishing and does not contact VirusTotal.
       </p>
       <form onSubmit={onSubmit}>
         <label htmlFor="email-text">Email text</label>
@@ -89,9 +137,14 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
         <p id="email-count" className="counter">
           {text.length.toLocaleString()} / {MAX_EMAIL_TEXT_LENGTH.toLocaleString()}
         </p>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Extracting…' : 'Extract links'}
-        </button>
+        <div className="button-row">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Extracting…' : 'Extract links'}
+          </button>
+          <button type="button" disabled={analysisLoading} onClick={() => void onAnalyze()}>
+            {analysisLoading ? 'Analyzing…' : 'Analyze message'}
+          </button>
+        </div>
       </form>
       <div className="result" aria-live="polite">
         {loading ? <p>Extracting links…</p> : null}
@@ -105,7 +158,57 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
             onCheckReputation={onCheckReputation}
           />
         ) : null}
+        <AnalysisView
+          loading={analysisLoading}
+          inputError={analysisInputError}
+          requestError={analysisError}
+          analysis={analysis}
+        />
       </div>
+    </section>
+  )
+}
+
+function AnalysisView({
+  loading,
+  inputError,
+  requestError,
+  analysis,
+}: {
+  loading: boolean
+  inputError: string | null
+  requestError: string | null
+  analysis: EmailAnalysis | null
+}) {
+  return (
+    <section className="message-analysis" aria-live="polite">
+      <h3>Message analysis</h3>
+      {loading ? <p>Analyzing the message…</p> : null}
+      {inputError ? <p className="message">{inputError}</p> : null}
+      {requestError ? <p className="message">{requestError}</p> : null}
+      {analysis ? (
+        <>
+          <p>
+            Assessment: <strong>{ASSESSMENT_LABEL[analysis.assessment]}</strong>
+          </p>
+          <p>This assessment does not confirm phishing and is not a verdict that the message is harmless.</p>
+          <h4>Rule explanations</h4>
+          {analysis.findings.length === 0 ? <p>No rules matched.</p> : null}
+          {analysis.findings.length > 0 ? (
+            <ul>
+              {analysis.findings.map((finding) => (
+                <li key={finding.ruleId}>{finding.explanation}</li>
+              ))}
+            </ul>
+          ) : null}
+          <h4>Limitations</h4>
+          <ul>
+            {analysis.limitations.map((limitation) => (
+              <li key={limitation}>{limitation}</li>
+            ))}
+          </ul>
+        </>
+      ) : null}
     </section>
   )
 }

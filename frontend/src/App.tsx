@@ -82,7 +82,7 @@ function App() {
   return (
     <main className="page">
       <p className="prototype">
-        Prototype. The URL section checks reputation only. Pasted email text is used to extract links, not to decide whether the email is phishing. A reputation check runs only after you click Check URL or Check reputation.
+        Prototype. The URL section checks reputation only after you click Check URL or Check reputation. Pasted text can extract links or run text-only message analysis. Message analysis does not confirm phishing and does not contact VirusTotal.
       </p>
       <h1>Phishing checker</h1>
       <p className="lead">

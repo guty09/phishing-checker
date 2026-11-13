@@ -82,6 +82,27 @@ button:disabled {
   color: #4b5568;
 }
 
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.button-row button {
+  margin-top: 0;
+}
+
+.message-analysis {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #c5cad3;
+}
+
+.message-analysis h3,
+.message-analysis h4 {
+  margin: 0.75rem 0 0.35rem;
+}
+
 .url-list,
 .warning-list {
   margin-top: 0.75rem;
