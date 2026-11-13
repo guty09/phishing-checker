@@ -15,11 +15,19 @@ The Spring Boot application is in `backend/`. It listens on port 8081. `GET /api
 
 Either an active credential request or an active gift-card request produces `suspicious`. No matching request and no urgency produces `no_obvious_warning_signs`. Text-only rules can miss threats and can flag legitimate messages. This endpoint does not analyze email headers, attachments, or link reputation, and it does not contact another service.
 
-Start it from PowerShell:
+Inspecting an uploaded `.eml` file is future work. The current email endpoints accept pasted text only.
+
+Future backend builds, tests, and application starts must use `backend/mvn.ps1`. That launcher creates `D:\Cyber\Maven\home` and `D:\Cyber\Temp` when they are missing, then sets these variables for the Maven process only:
+
+- `MAVEN_USER_HOME` is `D:\Cyber\Maven\home`, which is where the Maven Wrapper stores its downloaded distribution.
+- `TEMP` and `TMP` are `D:\Cyber\Temp`.
+- Existing `MAVEN_OPTS` values are kept, and `java.io.tmpdir` is set to `D:\Cyber\Temp` for that run.
+
+Dependencies remain in `D:\Cyber\Maven\repository` through `backend/.mvn/maven.config`. The launcher forwards every Maven argument and returns Maven's exit code, then restores the previous values of those environment variables. It does not change Windows user or system settings and does not remove an existing Maven installation on `C:`.
 
 ```powershell
 cd D:\Cyber\Projects\phishing-checker\backend
-.\mvnw.cmd spring-boot:run
+.\mvn.ps1 spring-boot:run
 ```
 
 ## VirusTotal
