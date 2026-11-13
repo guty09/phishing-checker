@@ -35,3 +35,23 @@ Set it in the current PowerShell session, then start the backend from that same 
 ```powershell
 $env:VIRUSTOTAL_API_KEY = "<your-virustotal-api-key>"
 ```
+
+## PhishTank
+
+`POST /api/check/url/phishtank` uses the same URL validation as `POST /api/check/url`. It does not change the VirusTotal endpoint or its response. The lookup is a single `POST` to `https://checkurl.phishtank.com/checkurl/` with a form body of `url`, `format=json`, and `app_key` only when an application key is configured. Redirects are not followed. The submitted URL is not opened, and it is not sent to PhishTank as a phishing report.
+
+The integration is disabled unless `PHISHTANK_ENABLED` is `true`. `PHISHTANK_APP_KEY` is optional. `PHISHTANK_USER_AGENT` overrides the descriptive User-Agent; a blank User-Agent does not call PhishTank. The application key is not written into code, logs, errors, or `toString()`. This application does not store the submitted URL. Sending a lookup gives that URL to PhishTank, which then handles it under PhishTank's own terms.
+
+This application allows one PhishTank request per rolling minute and does not retry. HTTP 509 is `rate_limited`. `X-Request-Limit-Interval`, `X-Request-Limit`, and `X-Request-Count` are returned when PhishTank sends them. They are not turned into another quota.
+
+`verified` and `valid` accept a JSON boolean or the strings `y` and `n`. `verified_phishing` requires both flags to parse as true. Any missing, malformed, or contradictory required field is `unavailable`. `not_listed` and `verified_not_phishing` do not mean the URL is safe. `checkedAt` is the time of this lookup. `verifiedAt` is included only when PhishTank provided a parseable timestamp.
+
+An `unavailable` result from the provider call includes `diagnostic`: `connection_failure`, `timeout`, `provider_http_status`, `oversized_response`, `invalid_json`, or `unsupported_response`. `providerStatus` is present only for `provider_http_status` and is the HTTP status code. Neither field includes the submitted URL, response body, application key, or exception text.
+
+PhishTank is not operational. The integration remains disabled by default and is paused pending provider access. Leave `PHISHTANK_ENABLED` unset or `false`.
+
+- Mocked backend suite passed: 73 tests.
+- The disabled endpoint was verified locally.
+- An enabled live lookup returned HTTP 403.
+- New-user registration displayed "temporarily disabled."
+- A successful live PhishTank lookup remains unverified.

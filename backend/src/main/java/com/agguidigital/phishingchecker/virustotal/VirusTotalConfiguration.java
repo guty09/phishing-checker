@@ -4,6 +4,7 @@ import java.net.http.HttpClient;
 import java.time.Clock;
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,7 +35,7 @@ public class VirusTotalConfiguration {
 	}
 
 	@Bean
-	VirusTotalClient virusTotalClient(HttpClient virusTotalHttpClient) {
+	VirusTotalClient virusTotalClient(@Qualifier("virusTotalHttpClient") HttpClient virusTotalHttpClient) {
 		return new VirusTotalClient(virusTotalHttpClient, VirusTotalClient.API_ROOT, VirusTotalClient.RESPONSE_TIMEOUT);
 	}
 

@@ -3,6 +3,7 @@ package com.agguidigital.phishingchecker.check;
 import java.time.Clock;
 import java.time.Instant;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.agguidigital.phishingchecker.virustotal.OutboundRateLimiter;
@@ -21,7 +22,7 @@ public class UrlCheckService {
 
 	private final Clock clock;
 
-	public UrlCheckService(VirusTotalProperties properties, VirusTotalClient client, OutboundRateLimiter rateLimiter, Clock clock) {
+	public UrlCheckService(VirusTotalProperties properties, VirusTotalClient client, @Qualifier("virusTotalRateLimiter") OutboundRateLimiter rateLimiter, Clock clock) {
 		this.properties = properties;
 		this.client = client;
 		this.rateLimiter = rateLimiter;
