@@ -8,4 +8,10 @@ public record UrlCheckRequest(
 		@Size(max = HttpUrlValidator.MAX_LENGTH, message = "url is too long")
 		@HttpUrl
 		String url) {
+
+	@Override
+	public String toString() {
+		return "UrlCheckRequest{url=redacted}";
+	}
+
 }

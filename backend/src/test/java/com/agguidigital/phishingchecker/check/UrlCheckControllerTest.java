@@ -39,6 +39,15 @@ class UrlCheckControllerTest {
 	}
 
 	@Test
+	void toStringOmitsTheUrl() {
+		String url = "https://example.com/UNIQUE-URL-MARKER";
+		org.assertj.core.api.Assertions.assertThat(new UrlCheckRequest(url).toString())
+				.isEqualTo("UrlCheckRequest{url=redacted}")
+				.doesNotContain("UNIQUE-URL-MARKER")
+				.doesNotContain("example.com");
+	}
+
+	@Test
 	void invalidUrlIsRejected() throws Exception {
 		String response = mockMvc.perform(post("/api/check/url")
 						.contentType(MediaType.APPLICATION_JSON)

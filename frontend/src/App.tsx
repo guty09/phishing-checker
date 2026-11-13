@@ -82,7 +82,7 @@ function App() {
   return (
     <main className="page">
       <p className="prototype">
-        Prototype. The URL section checks reputation only after you click Check URL or Check reputation. Pasted text can extract links or run text-only message analysis. The message source is a label for that text and does not change the checks. Message analysis does not confirm phishing and does not contact VirusTotal.
+        Prototype. Pasted message text is sent to this server for link extraction and text-only analysis. It is not sent to VirusTotal. Check URL and Check reputation each send the selected URL to VirusTotal. The message source is a label and does not change the checks. Message analysis does not confirm phishing.
       </p>
       <h1>Phishing checker</h1>
       <p className="lead">

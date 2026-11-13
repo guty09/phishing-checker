@@ -3,6 +3,7 @@
 $ErrorActionPreference = 'Stop'
 
 $MavenUserHome = 'D:\Cyber\Maven\home'
+$MavenRepository = 'D:\Cyber\Maven\repository'
 $TempDirectory = 'D:\Cyber\Temp'
 $TmpDirProperty = "-Djava.io.tmpdir=$TempDirectory"
 
@@ -42,7 +43,7 @@ try {
     $env:TMP = $TempDirectory
     $env:MAVEN_OPTS = Set-JavaIoTmpDir -Options $savedMavenOpts
 
-    & "$PSScriptRoot\mvnw.cmd" @args
+    & "$PSScriptRoot\mvnw.cmd" @args "-Dmaven.repo.local=$MavenRepository"
     if ($null -eq $LASTEXITCODE) {
         $exitCode = 0
     } else {

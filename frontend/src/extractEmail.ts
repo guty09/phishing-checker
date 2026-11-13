@@ -28,7 +28,7 @@ export async function extractEmailLinks(text: string): Promise<EmailExtractResul
       body: JSON.stringify({ text }),
     })
   } catch {
-    throw new Error('The checker could not be reached. Start the backend on port 8081.')
+    throw new Error('The checker could not be reached. Try again in a moment.')
   }
 
   if (response.status === 400) {

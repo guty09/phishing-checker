@@ -62,7 +62,7 @@ export async function checkUrl(url: string): Promise<CheckResult> {
       body: JSON.stringify({ url }),
     })
   } catch {
-    throw new Error('The checker could not be reached. Start the backend on port 8081.')
+    throw new Error('The checker could not be reached. Try again in a moment.')
   }
 
   if (response.status === 400) {

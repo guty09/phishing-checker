@@ -143,7 +143,7 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
     <section className="email-paste">
       <h2>Paste message text</h2>
       <p id="email-note">
-        Only the pasted text is checked. The source label does not change the checks. Sender identity, platform metadata, headers, and attachments are not verified. Extract links lists explicit http and https URLs. Analyze message applies the same text rules for every source. Message analysis does not confirm phishing and does not contact VirusTotal.
+        Pasted text is sent to this server for link extraction and text-only analysis. It is not sent to VirusTotal. The source label does not change the checks. Sender identity, platform metadata, headers, and attachments are not verified. Extract links lists explicit http and https URLs. Analyze message applies the same text rules for every source. Message analysis does not confirm phishing. Check reputation sends only the selected URL to VirusTotal, and only after that button is clicked.
       </p>
       <form onSubmit={onSubmit}>
         <label htmlFor="message-source">Message source</label>
