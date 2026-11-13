@@ -17,7 +17,7 @@ const ASSESSMENTS: readonly EmailAssessment[] = ['suspicious', 'no_obvious_warni
 
 export function validateEmailTextForAnalysis(value: string): string | null {
   if (value.trim().length === 0) {
-    return 'Enter the email text to analyze.'
+    return 'Enter the message text to analyze.'
   }
   if (value.length > MAX_EMAIL_TEXT_LENGTH) {
     return 'The email text must be at most 50,000 characters.'

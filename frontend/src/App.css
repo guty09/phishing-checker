@@ -31,7 +31,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 0.65rem 0.75rem;

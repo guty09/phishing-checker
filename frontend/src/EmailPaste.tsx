@@ -10,6 +10,15 @@ const ASSESSMENT_LABEL: Record<EmailAssessment, string> = {
   inconclusive: 'Inconclusive',
 }
 
+const MESSAGE_SOURCES = [
+  { id: 'email', label: 'Email', inputLabel: 'Email text', placeholder: 'Paste the email message text' },
+  { id: 'whatsapp', label: 'WhatsApp', inputLabel: 'WhatsApp text', placeholder: 'Paste the WhatsApp message text' },
+  { id: 'telegram', label: 'Telegram', inputLabel: 'Telegram text', placeholder: 'Paste the Telegram message text' },
+  { id: 'sms', label: 'SMS', inputLabel: 'SMS text', placeholder: 'Paste the SMS message text' },
+] as const
+
+type MessageSourceId = (typeof MESSAGE_SOURCES)[number]['id']
+
 type ExtractedReputationCheck = {
   url: string
   loading: boolean
@@ -25,6 +34,7 @@ type EmailPasteProps = {
 }
 
 export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, onCheckReputation }: EmailPasteProps) {
+  const [source, setSource] = useState<MessageSourceId>('email')
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [inputError, setInputError] = useState<string | null>(null)
@@ -37,10 +47,9 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
   const requestGeneration = useRef(0)
   const analysisGeneration = useRef(0)
 
-  function onTextChange(value: string) {
+  function invalidatePendingResults() {
     requestGeneration.current += 1
     analysisGeneration.current += 1
-    setText(value)
     setLoading(false)
     setInputError(null)
     setRequestError(null)
@@ -50,6 +59,19 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
     setAnalysisError(null)
     setAnalysis(null)
     onEmailTextChange()
+  }
+
+  function onTextChange(value: string) {
+    invalidatePendingResults()
+    setText(value)
+  }
+
+  function onSourceChange(next: MessageSourceId) {
+    if (next === source) {
+      return
+    }
+    invalidatePendingResults()
+    setSource(next)
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -115,21 +137,37 @@ export function EmailPaste({ reputationBusy, extractedCheck, onEmailTextChange, 
     }
   }
 
+  const selectedSource = MESSAGE_SOURCES.find((item) => item.id === source) ?? MESSAGE_SOURCES[0]
+
   return (
     <section className="email-paste">
-      <h2>Paste email text</h2>
+      <h2>Paste message text</h2>
       <p id="email-note">
-        Extract links lists explicit http and https URLs. Analyze message applies text rules only. Message analysis does not confirm phishing and does not contact VirusTotal.
+        Only the pasted text is checked. The source label does not change the checks. Sender identity, platform metadata, headers, and attachments are not verified. Extract links lists explicit http and https URLs. Analyze message applies the same text rules for every source. Message analysis does not confirm phishing and does not contact VirusTotal.
       </p>
       <form onSubmit={onSubmit}>
-        <label htmlFor="email-text">Email text</label>
+        <label htmlFor="message-source">Message source</label>
+        <select
+          id="message-source"
+          name="message-source"
+          value={source}
+          onChange={(event) => onSourceChange(event.target.value as MessageSourceId)}
+        >
+          {MESSAGE_SOURCES.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="message-text">{selectedSource.inputLabel}</label>
         <textarea
-          id="email-text"
-          name="email-text"
+          id="message-text"
+          name="message-text"
           rows={8}
           maxLength={MAX_EMAIL_TEXT_LENGTH}
           autoComplete="off"
           spellCheck={false}
+          placeholder={selectedSource.placeholder}
           value={text}
           aria-describedby="email-note email-count"
           onChange={(event) => onTextChange(event.target.value)}

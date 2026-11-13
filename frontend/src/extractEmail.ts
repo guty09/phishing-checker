@@ -8,7 +8,7 @@ export type EmailExtractResult = {
 
 export function validateEmailText(value: string): string | null {
   if (value.trim().length === 0) {
-    return 'Enter the email text to extract links.'
+    return 'Enter the message text to extract links.'
   }
   if (value.length > MAX_EMAIL_TEXT_LENGTH) {
     return 'The email text must be at most 50,000 characters.'
